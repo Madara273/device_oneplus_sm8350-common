@@ -345,9 +345,12 @@ PRODUCT_COPY_FILES += \
 
 $(call inherit-product, hardware/oplus/oplus-fwk/oplus-fwk.mk)
 
-# Thermal
+# Thermal HAL
 PRODUCT_PACKAGES += \
-    android.hardware.thermal-service.qti
+    android.hardware.thermal-service.pixel
+
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/thermal_info_config.json:$(TARGET_COPY_OUT_VENDOR)/etc/thermal_info_config.json
 
 # Torch
 $(call soong_config_set,libcameraservice,ext_lib,//$(LOCAL_PATH):libcameraservice_extension.oneplus_sm8350)
