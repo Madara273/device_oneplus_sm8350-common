@@ -1,9 +1,0 @@
-# The module will be loaded from the target RC after
-# cold boot calibration.
-blocklist 8188eu
-blocklist 88XXau
-blocklist 8814au
-blocklist can327
-blocklist hlcan
-blocklist slcan
-blocklist qca_cld3_wlan

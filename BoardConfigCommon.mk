@@ -20,8 +20,7 @@ AB_OTA_PARTITIONS += \
     vbmeta_system \
     vbmeta_vendor \
     vendor \
-    vendor_boot \
-    vendor_dlkm
+    vendor_boot
 
 # Architecture
 TARGET_ARCH := arm64
@@ -36,7 +35,6 @@ TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := cortex-a76
 TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a75
-
 
 # Audio
 AUDIO_FEATURE_ENABLED_DLKM := true
@@ -90,6 +88,7 @@ BOARD_KERNEL_CMDLINE := \
     swiotlb=0 \
     ip6table_raw.raw_before_defrag=1 \
     iptable_raw.raw_before_defrag=1
+
 BOARD_KERNEL_IMAGE_NAME := Image
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_SEPARATED_DTBO := true
@@ -99,13 +98,6 @@ BOARD_RAMDISK_USE_LZ4 := true
 TARGET_KERNEL_SOURCE := kernel/oneplus/sm8350
 TARGET_KERNEL_CONFIG := vendor/lahaina-qgki_defconfig
 TARGET_KERNEL_NO_GCC := true
-
-# Kernel modules
-BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := $(COMMON_PATH)/modules.blocklist
-BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load))
-BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load.recovery))
-BOOT_KERNEL_MODULES := $(strip $(shell cat $(COMMON_PATH)/modules.include.recovery))
-TARGET_MODULE_ALIASES += wlan.ko:qca_cld3_wlan.ko
 
 # Platform
 BOARD_USES_QCOM_HARDWARE := true
@@ -132,8 +124,7 @@ BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_SYSTEM_EXTIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_SYSTEMIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
-BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
-BOARD_ONEPLUS_DYNAMIC_PARTITIONS_PARTITION_LIST := odm product system system_ext vendor vendor_dlkm
+BOARD_ONEPLUS_DYNAMIC_PARTITIONS_PARTITION_LIST := odm product system system_ext vendor
 BOARD_ONEPLUS_DYNAMIC_PARTITIONS_SIZE ?= 6600000000
 BOARD_SUPER_PARTITION_GROUPS := oneplus_dynamic_partitions
 BOARD_SUPER_PARTITION_SIZE ?= 11190403072
@@ -142,7 +133,6 @@ TARGET_COPY_OUT_ODM := odm
 TARGET_COPY_OUT_PRODUCT := product
 TARGET_COPY_OUT_SYSTEM_EXT := system_ext
 TARGET_COPY_OUT_VENDOR := vendor
-TARGET_COPY_OUT_VENDOR_DLKM := vendor_dlkm
 
 # Recovery
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
@@ -160,7 +150,6 @@ BOOT_SECURITY_PATCH := 2025-04-01
 VENDOR_SECURITY_PATCH := $(BOOT_SECURITY_PATCH)
 
 # SEPolicy
-
 include device/lineage/sepolicy/libperfmgr/sepolicy.mk
 include device/qcom/sepolicy_vndr/SEPolicy.mk
 include hardware/oplus/sepolicy/qti/SEPolicy.mk
