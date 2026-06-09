@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2016-2022 crDroid Android Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="device_title">Налаштування OnePlus</string>
+    <string name="device_summary">Налаштування специфічних параметрів пристрою OnePlus</string>
+
+    <!-- Vibration control -->
+    <string name="category_vibrator">Налаштування тактильного відгуку</string>
+    <string name="vib_strength_title_head">Сила</string>
+    <string name="vib_strength_summary_head">Задати силу вібрації</string>
+
+    <!-- Custom seekbar -->
+    <string name="custom_seekbar_value">Значення: <xliff:g id="v">%s</xliff:g></string>
+    <string name="custom_seekbar_default_value">за замовчуванням</string>
+    <string name="custom_seekbar_default_value_to_set">Значення за замовчуванням: <xliff:g id="v">%s</xliff:g>\nДовге натискання для встановлення</string>
+    <string name="custom_seekbar_default_value_is_set">Встановлено значення за замовчуванням</string>
+
+    <!-- USB 2.0 Force FastCharge -->
+    <string name="usb_title">Конфігурації швидкої зарядки</string>
+    <string name="usb2_fc_title">Швидка зарядка</string>
+    <string name="usb2_fc_summary">Примусова швидка зарядка до 900мА в режимі USB 2.0</string>
+
+    <!-- Touchpanel -->
+    <string name="touchpanel_title">Налаштування сенсорної панелі</string>
+    <string name="game_mode_title">Підвищена чутливість дотику</string>
+    <string name="game_mode_summary">Покращити відгук дотику та стабільність частоти кадрів у іграх</string>
+    <string name="game_mode_warning">Може збільшити витрату заряду батареї</string>
+    <string name="edge_touch_title">Зняти обмеження дотиків</string>
+    <string name="edge_touch_summary">Покращення підтримки мультидотиків в іграх</string>
+    <string name="edge_touch_warning">Може збільшити ймовірність випадкових натискань</string>
+</resources>
