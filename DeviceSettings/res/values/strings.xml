@@ -19,8 +19,6 @@
     <string name="device_title">OnePlus Settings</string>
     <string name="device_summary">Adjust OnePlus specific device settings</string>
 
-    
-
     <!-- Vibration control -->
     <string name="category_vibrator">Vibrator</string>
     <string name="vib_strength_title_head">Strength</string>
@@ -33,7 +31,7 @@
     <string name="custom_seekbar_default_value_is_set">Default value is set</string>
 
     <!-- USB 2.0 Force FastCharge -->
-    <string name="usb_title">USB</string> 
+    <string name="usb_title">USB</string>
     <string name="usb2_fc_title">Fast charge</string>
     <string name="usb2_fc_summary">Force fast charging of up to 900mA in USB 2.0 mode</string>
 
@@ -47,7 +45,7 @@
     <string name="edge_touch_warning">May increase the possibility of accidental touch</string>
 
      <!-- Powertools -->
-<string name="Powertools_title">Power Tools</string>
+    <string name="Powertools_title">Power Tools</string>
     <string name="Powertools_summary">Advanced CPU, GPU, and Storage I/O tuning</string>
 
     <string name="powerprofile_tile_label">Power Profile</string>
@@ -58,12 +56,6 @@
     <string name="powerprofile_mode_manual">Manual</string>
     <string name="powerprofile_mode_unknown">Unknown</string>
     <string name="power_profile_footer_summary">Select a predefined profile to optimize hardware behavior. Enable CPU, GPU, or Storage controls to tweak within the allowed range of the active profile.</string>
-
-    <string name="mode_status_balanced">Schedutil • A55 max 1.8 GHz • A78 max 2.22 GHz • X1 max 2.59 GHz • GPU max 840 MHz • BFQ I/O</string>
-    <string name="mode_status_performance">Performance gov (Little) • A55 max 1.8 GHz • A78 max 2.41 GHz • X1 max 2.84 GHz • GPU max 840 MHz • Kyber I/O</string>
-    <string name="mode_status_battery_saver">Schedutil + capped clocks • A78 max 2.21 GHz • X1 max 2.59 GHz • GPU max 579 MHz • BFQ I/O</string>
-
-
 
     <string name="powertools_gpu_category_title">GPU Tuning (Adreno 660)</string>
     <string name="powertools_gpu_enable_title">GPU Tweaking</string>
@@ -81,20 +73,6 @@
     <string name="powertools_min_freq">Minimum Frequency</string>
     <string name="powertools_max_freq">Maximum Frequency</string>
     <string name="powertools_governor">Governor</string>
-
-    <string name="auto_thermal_category_title">Automatic Thermal Engine</string>
-    <string name="auto_thermal_enable_title">Enable Auto Thermal</string>
-    <string name="auto_thermal_enable_summary">Dynamically throttle hardware based on battery temperature thresholds (45°C / 49°C / 55°C)</string>
-    <string name="auto_thermal_footer">When Auto Thermal is enabled, manual controls are locked. The system continuously monitors battery thermals and steps down CPU/GPU clocks to safely dissipate heat.</string>
-    <string name="auto_thermal_live_summary">%1$s — %2$s</string>
-    
-    <string name="auto_thermal_notif_channel">Thermal Monitor</string>
-    <string name="auto_thermal_notif_title">Auto Thermal Monitor</string>
-    <string name="auto_thermal_notif_text">%1$s — %2$s</string>
-    <string name="auto_thermal_temp_battery">Battery: %1$s°C</string>
-    <string name="auto_thermal_temp_cpu">CPU: %1$s°C</string>
-    <string name="auto_thermal_temp_gpu">GPU: %1$s°C</string>
-
     <string name="misc_category_title">Miscellaneous</string>
     <string name="reset_on_boot_title">Reset on boot</string>
     <string name="reset_on_boot_summary">Re-apply the active profile defaults to hardware on every boot</string>

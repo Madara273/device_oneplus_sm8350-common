@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2025 kenrow214
+ * Copyright (C) 2026 Madara273
+ * Copyright (C) 2025-2026 kenrow214
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,10 +18,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class PowertoolBootReceiver extends BroadcastReceiver {
-
     private static final String TAG = "PowertoolBootReceiver";
 
-    private static final String PREF_AUTO_THERMAL   = "auto_thermal_enable";
     private static final String PREF_POWER_PROFILE  = "power_profile_mode";
     private static final String PREF_CPU_ENABLE     = "cpu_enable";
     private static final String PREF_GPU_ENABLE     = "gpu_enable";
@@ -30,43 +29,45 @@ public final class PowertoolBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent == null || !Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+        if (context == null || intent == null || !Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             return;
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean autoThermal = prefs.getBoolean(PREF_AUTO_THERMAL, false);
-
-        if (autoThermal) {
-            Intent svcIntent = new Intent(context, ThermalMonitorService.class);
-            context.startForegroundService(svcIntent);
-        }
+        final Context appContext = context.getApplicationContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(appContext);
 
         final PendingResult pendingResult = goAsync();
+
+        // Execute boot-time configuration in background thread
         sExecutor.execute(() -> {
             try {
-                // Discard any stale powersave blur backup so it doesn't
-                // accidentally restore blur on the first mode switch.
-                // Settings.Global (disable_window_blurs) already persists
-                // across reboots, so the user's blur preference is intact.
-                BlurUtils.clearPowersaveBackup(context);
+                // Clear any previous power-saving backup state
+                BlurUtils.clearPowersaveBackup(appContext);
 
-                // Reset all manual override toggles — always Normal on boot
+                // Reset persisted feature toggles to safe defaults
                 prefs.edit()
-                     .putString(PREF_POWER_PROFILE, String.valueOf(PowerProfileUtil.MODE_BALANCE))
-                     .putBoolean(PREF_CPU_ENABLE, false)
-                     .putBoolean(PREF_GPU_ENABLE, false)
-                     .putBoolean(PREF_STORAGE_ENABLE, false)
-                     .commit();
+                        .putString(PREF_POWER_PROFILE, String.valueOf(PowerProfileUtil.MODE_BALANCE))
+                        .putBoolean(PREF_CPU_ENABLE, false)
+                        .putBoolean(PREF_GPU_ENABLE, false)
+                        .putBoolean(PREF_STORAGE_ENABLE, false)
+                        .apply();
 
-                // Apply Normal mode with skipBlur=true so we don't
-                // touch the user's blur setting on boot at all.
-                PowerProfileUtil profileUtil = new PowerProfileUtil(context);
+                // Initialize power profile manager
+                PowerProfileUtil profileUtil = new PowerProfileUtil(appContext);
+
+                // Apply balanced mode during boot sequence
                 profileUtil.setModeOnBoot(PowerProfileUtil.MODE_BALANCE);
 
-                Log.i(TAG, "Boot: Normal mode applied (blur untouched)");
+                Log.i(TAG, "Boot completed: Balanced mode applied successfully.");
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error occurred during background boot processing", e);
+
             } finally {
-                pendingResult.finish();
+                // Signal completion of broadcast processing
+                if (pendingResult != null) {
+                    pendingResult.finish();
+                }
             }
         });
     }

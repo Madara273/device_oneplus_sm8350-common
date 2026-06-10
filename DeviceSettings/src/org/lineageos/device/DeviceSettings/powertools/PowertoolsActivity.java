@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2025 kenrow214
+ * Copyright (C) 2026 Madara273
+ * Copyright (C) 2025-2026 kenrow214
  * Adapted for OnePlus 9 (SD888 / SM8350)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,6 +12,7 @@
 
 package org.lineageos.device.DeviceSettings.powertools;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -28,28 +30,40 @@ public final class PowertoolsActivity extends CollapsingToolbarBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set activity layout containing Powertools container
         setContentView(R.layout.activity_powertools);
 
-        if (getActionBar() != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        // Configure action bar for back navigation support
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        // Initialize fragment only on first creation
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE) // Premium UI touch
-                    .replace(R.id.powertools_fragment_container, 
-                             new PowertoolsSettingsFragment(), 
-                             FRAGMENT_TAG)
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    // Replace container with Powertools settings fragment
+                    .replace(
+                            R.id.powertools_fragment_container,
+                            new PowertoolsSettingsFragment(),
+                            FRAGMENT_TAG
+                    )
                     .commit();
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        // Handle home/up button press
         if (item.getItemId() == android.R.id.home) {
             getOnBackPressedDispatcher().onBackPressed();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

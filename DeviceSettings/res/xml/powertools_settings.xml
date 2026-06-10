@@ -8,32 +8,7 @@
         android:selectable="false"
         android:layout="@layout/powertools_mode_card" />
 
-    <PreferenceCategory
-        android:key="auto_thermal_category"
-        android:title="@string/auto_thermal_category_title">
 
-        <SwitchPreferenceCompat
-            android:key="auto_thermal_enable"
-            app:iconSpaceReserved="true"
-            android:icon="@drawable/ic_thermal_balance"
-            android:title="@string/auto_thermal_enable_title"
-            android:summary="@string/auto_thermal_enable_summary"
-            android:defaultValue="false" />
-
-        <Preference
-            android:key="auto_thermal_status"
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            android:selectable="false" />
-
-        <Preference
-            android:key="auto_thermal_footer"
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            android:summary="@string/auto_thermal_footer"
-            android:selectable="false" />
-
-    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="power_profile_category"
@@ -77,27 +52,18 @@
             android:key="gpu_min_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/gpu_min_frequency"
-            android:entries="@array/gpu_frequency_entries"
-            android:entryValues="@array/gpu_frequency_values"
-            android:defaultValue="315000000"
             android:summary="%s" />
 
         <ListPreference
             android:key="gpu_max_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/gpu_max_frequency"
-            android:entries="@array/gpu_frequency_entries"
-            android:entryValues="@array/gpu_frequency_values"
-            android:defaultValue="840000000"
             android:summary="%s" />
 
         <ListPreference
             android:key="gpu_governor"
             app:iconSpaceReserved="false"
             android:title="@string/gpu_governor"
-            android:entries="@array/gpu_governor_entries"
-            android:entryValues="@array/gpu_governor_values"
-            android:defaultValue="userspace"
             android:summary="%s" />
 
     </PreferenceCategory>
@@ -118,27 +84,18 @@
             android:key="cpu_little_min_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_min_freq"
-            android:entries="@array/cpu_little_freq_entries"
-            android:entryValues="@array/cpu_little_freq_values"
-            android:defaultValue="300000"
             android:summary="%s" />
 
         <ListPreference
             android:key="cpu_little_max_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_max_freq"
-            android:entries="@array/cpu_little_freq_entries"
-            android:entryValues="@array/cpu_little_freq_values"
-            android:defaultValue="1804800"
             android:summary="%s" />
 
         <ListPreference
             android:key="cpu_little_governor"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_governor"
-            android:entries="@array/cpu_governor_entries"
-            android:entryValues="@array/cpu_governor_values"
-            android:defaultValue="schedutil"
             android:summary="%s" />
 
     </PreferenceCategory>
@@ -151,27 +108,18 @@
             android:key="cpu_big_min_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_min_freq"
-            android:entries="@array/cpu_big_freq_entries"
-            android:entryValues="@array/cpu_big_freq_values"
-            android:defaultValue="710400"
             android:summary="%s" />
 
         <ListPreference
             android:key="cpu_big_max_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_max_freq"
-            android:entries="@array/cpu_big_freq_entries"
-            android:entryValues="@array/cpu_big_freq_values"
-            android:defaultValue="2419200"
             android:summary="%s" />
 
         <ListPreference
             android:key="cpu_big_governor"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_governor"
-            android:entries="@array/cpu_governor_entries"
-            android:entryValues="@array/cpu_governor_values"
-            android:defaultValue="schedutil"
             android:summary="%s" />
 
     </PreferenceCategory>
@@ -184,27 +132,18 @@
             android:key="cpu_prime_min_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_min_freq"
-            android:entries="@array/cpu_prime_freq_entries"
-            android:entryValues="@array/cpu_prime_freq_values"
-            android:defaultValue="844800"
             android:summary="%s" />
 
         <ListPreference
             android:key="cpu_prime_max_frequency"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_max_freq"
-            android:entries="@array/cpu_prime_freq_entries"
-            android:entryValues="@array/cpu_prime_freq_values"
-            android:defaultValue="2841600"
             android:summary="%s" />
 
         <ListPreference
             android:key="cpu_prime_governor"
             app:iconSpaceReserved="false"
             android:title="@string/powertools_governor"
-            android:entries="@array/cpu_governor_entries"
-            android:entryValues="@array/cpu_governor_values"
-            android:defaultValue="schedutil"
             android:summary="%s" />
 
     </PreferenceCategory>
@@ -226,11 +165,9 @@
             android:title="@string/io_scheduler_title"
             android:summary="%s"
             android:dialogTitle="@string/io_scheduler_dialog_title"
-            android:entries="@array/io_scheduler_entries"
-            android:entryValues="@array/io_scheduler_values"
-            android:defaultValue="bfq"
             android:dependency="storage_enable" />
 
     </PreferenceCategory>
 
 </PreferenceScreen>
+
