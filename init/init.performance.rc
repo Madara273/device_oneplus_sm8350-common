@@ -147,7 +147,7 @@ on property:sys.perf_mode_active=1
     write /proc/sys/kernel/sched_boost 0
     write /sys/devices/system/cpu/cpu_boost/input_boost_freq "0:1305600"
     write /sys/devices/system/cpu/cpu_boost/input_boost_ms 120
-    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/scheduler mq-deadline
     write /sys/class/scsi_host/host0/../../../clkscale_enable 0
 
 on property:sys.perf_mode_active=0
@@ -175,7 +175,7 @@ on property:sys.perf_mode_active=0
     write /proc/sys/kernel/sched_boost 0
     write /sys/devices/system/cpu/cpu_boost/input_boost_freq "0:1094400"
     write /sys/devices/system/cpu/cpu_boost/input_boost_ms 80
-    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/scheduler mq-deadline
     write /sys/class/scsi_host/host0/../../../clkscale_enable 1
 
 on property:persist.sys.parts.storage.scheduler=*
@@ -229,7 +229,7 @@ on property:sys.thermal_state=0
     write /sys/devices/system/cpu/cpufreq/policy4/scaling_governor schedutil
     write /sys/devices/system/cpu/cpufreq/policy7/scaling_governor schedutil
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor simple_ondemand
-    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/scheduler mq-deadline
     write /dev/cpuset/foreground/cpus 0-6
     write /dev/cpuset/system-background/cpus 0-3
     write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 2
@@ -246,7 +246,7 @@ on property:sys.thermal_state=1
     write /sys/devices/system/cpu/cpufreq/policy4/scaling_governor schedutil
     write /sys/devices/system/cpu/cpufreq/policy7/scaling_governor schedutil
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor simple_ondemand
-    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/scheduler mq-deadline
     write /dev/cpuset/foreground/cpus 0-6
     write /dev/cpuset/system-background/cpus 0-3
     write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 2
@@ -263,7 +263,7 @@ on property:sys.thermal_state=2
     write /sys/devices/system/cpu/cpufreq/policy4/scaling_governor conservative
     write /sys/devices/system/cpu/cpufreq/policy7/scaling_governor conservative
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor simple_ondemand
-    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/scheduler mq-deadline
     write /dev/cpuset/foreground/cpus 0-6
     write /dev/cpuset/system-background/cpus 0-3
     write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 1
@@ -280,7 +280,7 @@ on property:sys.thermal_state=3
     write /sys/devices/system/cpu/cpufreq/policy4/scaling_governor powersave
     write /sys/devices/system/cpu/cpufreq/policy7/scaling_governor powersave
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor powersave
-    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/scheduler mq-deadline
     write /dev/cpuset/foreground/cpus 0-3
     write /dev/cpuset/system-background/cpus 0-1
     write /sys/devices/system/cpu/cpu4/core_ctl/min_cpus 0
