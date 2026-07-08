@@ -16,12 +16,16 @@
 
 package org.lineageos.device.DeviceSettings;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -40,6 +44,14 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import org.lineageos.device.DeviceSettings.Constants;
 import org.lineageos.internal.util.FileUtils;
@@ -56,6 +68,9 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
 
     private static final String KEY_USB2_SWITCH = "usb2_fast_charge";
     private static final String KEY_VIBSTRENGTH = "vib_strength";
+    private static final String KEY_SAKURA_LIST = "sakura_version_list";
+
+    private static final String GITHUB_API_URL = "https://api.github.com/repos/Madara273/Sakura.MTX-OP9-Pro/releases";
 
     private static final String FILE_FAST_CHARGE = "/sys/module/oplus_chg/parameters/force_fast_charge";
     private static final String FILE_LEVEL = "/sys/devices/platform/soc/88c000.i2c/i2c-6/6-005a/leds/vibrator/level";
@@ -73,6 +88,8 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
     private SeekBarPreference mVibratorStrengthPreference;
 
     private Vibrator mVibrator;
+    private ListPreference mSakuraList;
+    private List<String> mDownloadUrls = new ArrayList<>();
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -111,13 +128,19 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             mUSB2FastChargeModeSwitch.setEnabled(false);
         }
 
-       	mVibratorStrengthPreference = (SeekBarPreference) findPreference(KEY_VIBSTRENGTH);
+        mVibratorStrengthPreference = (SeekBarPreference) findPreference(KEY_VIBSTRENGTH);
         if (Utils.fileWritable(FILE_LEVEL)) {
             mVibratorStrengthPreference.setValue(sharedPrefs.getInt(KEY_VIBSTRENGTH,
                 Integer.parseInt(Utils.getFileValue(FILE_LEVEL, DEFAULT))));
             mVibratorStrengthPreference.setOnPreferenceChangeListener(this);
         } else {
             mVibratorStrengthPreference.setEnabled(false);
+        }
+
+        mSakuraList = (ListPreference) findPreference(KEY_SAKURA_LIST);
+        if (mSakuraList != null) {
+            mSakuraList.setOnPreferenceChangeListener(this);
+            new FetchSakuraReleasesTask().execute();
         }
     }
 
@@ -146,6 +169,14 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             sharedPrefs.edit().putBoolean(KEY_USB2_SWITCH, enabled).commit();
             Utils.writeValue(FILE_FAST_CHARGE, enabled ? "1" : "0");
+            return true;
+        } else if (preference == mSakuraList) {
+            int index = mSakuraList.findIndexOfValue((String) newValue);
+            if (index >= 0 && index < mDownloadUrls.size()) {
+                String downloadUrl = mDownloadUrls.get(index);
+                String versionName = mSakuraList.getEntries()[index].toString();
+                downloadKernel(versionName, downloadUrl);
+            }
             return true;
         } else if (preference == mVibratorStrengthPreference) {
             int value = Integer.parseInt(newValue.toString());
@@ -240,6 +271,94 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             int value = sharedPrefs.getInt(KEY_VIBSTRENGTH,
                 Integer.parseInt(Utils.getFileValue(FILE_LEVEL, DEFAULT)));
             Utils.writeValue(FILE_LEVEL, String.valueOf(value));
+        }
+    }
+
+    private class FetchSakuraReleasesTask extends AsyncTask<Void, Void, Boolean> {
+        private List<String> versions = new ArrayList<>();
+        private List<String> urls = new ArrayList<>();
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(GITHUB_API_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", "Sakura-OS-Agent");
+                conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
+                conn.connect();
+
+                int responseCode = conn.getResponseCode();
+                Log.d(TAG, "GitHub API Response Code: " + responseCode);
+
+                if (responseCode == 200) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    reader.close();
+
+                    JSONArray releases = new JSONArray(sb.toString());
+                    for (int i = 0; i < releases.length(); i++) {
+                        JSONObject release = releases.getJSONObject(i);
+                        String tagName = release.getString("tag_name");
+
+                        JSONArray assets = release.getJSONArray("assets");
+                        if (assets.length() > 0) {
+                            JSONObject asset = assets.getJSONObject(0);
+                            String downloadUrl = asset.getString("browser_download_url");
+
+                            versions.add(tagName);
+                            urls.add(downloadUrl);
+                        }
+                    }
+                    return true;
+                } else {
+                    Log.e(TAG, "Server returned HTTP error status: " + responseCode);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed parsing updates structure", e);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success && !versions.isEmpty() && mSakuraList != null) {
+                mDownloadUrls = urls;
+
+                CharSequence[] entries = versions.toArray(new CharSequence[0]);
+                CharSequence[] entryValues = new CharSequence[versions.size()];
+                for (int i = 0; i < versions.size(); i++) {
+                    entryValues[i] = String.valueOf(i);
+                }
+
+                mSakuraList.setEntries(entries);
+                mSakuraList.setEntryValues(entryValues);
+                mSakuraList.setSummary("Found releases: " + versions.size());
+            } else {
+                if (mSakuraList != null) {
+                    mSakuraList.setSummary("Failed to fetch available update manifests");
+                }
+            }
+        }
+    }
+
+    private void downloadKernel(String versionName, String url) {
+        Toast.makeText(getContext(), "Downloading Sakura Kernel " + versionName + "...", Toast.LENGTH_SHORT).show();
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setTitle("Sakura Kernel " + versionName);
+        request.setDescription("Downloading flashable AnyKernel3 deployment archive");
+
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Sakura-" + versionName + ".zip");
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        if (manager != null) {
+            manager.enqueue(request);
         }
     }
 }

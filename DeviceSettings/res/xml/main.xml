@@ -19,6 +19,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <org.lineageos.device.CenteredCategory
+        android:key="sakura_update_category"
+        android:title="Sakura Kernel Update">
+
+        <ListPreference
+            android:key="sakura_version_list"
+            android:icon="@drawable/published_with_changes_24"
+            android:title="Available Builds"
+            android:summary="Tap to check and download available kernels"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array" />
+    </org.lineageos.device.CenteredCategory>
+
+    <org.lineageos.device.CenteredCategory
         android:key="touchpanel"
         android:title="@string/touchpanel_title">
 
