@@ -15,10 +15,21 @@
      limitations under the License.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:settings="http://schemas.android.com/apk/res/org.lineageos.device.DeviceSettings"
+    xmlns:settings="http://schemas.android.com/apk/res/org.lineageos.device.DeviceSettings"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    
+    <PreferenceCategory
+        android:key="sakura_update_category"
+        android:title="Sakura Kernel Update">
+
+        <ListPreference
+            android:key="sakura_version_list"
+            android:icon="@drawable/published_with_changes_24"
+            android:title="Available Builds"
+            android:summary="Tap to check and download available kernels"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array" />
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="touchpanel"
@@ -92,4 +103,3 @@
     </PreferenceCategory>
 
 </PreferenceScreen>
-

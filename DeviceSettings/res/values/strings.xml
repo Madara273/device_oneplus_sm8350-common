@@ -111,4 +111,7 @@
 
     <string name="widget_name">System Monitor</string>
     <string name="widget_description">Live CPU, GPU, Memory, Battery \ Storage stats</string>
+    <string-array name="empty_array">
+    </string-array>
+
 </resources>

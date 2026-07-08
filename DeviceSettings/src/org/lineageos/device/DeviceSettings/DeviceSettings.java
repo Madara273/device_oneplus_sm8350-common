@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,15 @@
 
 package org.lineageos.device.DeviceSettings;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.Vibrator;
@@ -36,7 +40,16 @@ import androidx.preference.SwitchPreferenceCompat;
 import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
 import android.util.ArrayMap;
+import android.util.Log;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.lineageos.device.DeviceSettings.powertools.PowerProfileUtil;
 import org.lineageos.internal.util.FileUtils;
 
@@ -52,6 +65,10 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
     private static final String KEY_EDGE_TOUCH = "edge_touch";
     private static final String KEY_USB2_SWITCH = "usb2_fast_charge";
     private static final String KEY_VIBSTRENGTH = "vib_strength";
+    private static final String KEY_SAKURA_LIST = "sakura_version_list";
+
+    private static final String TAG = "SakuraUpdate";
+    private static final String GITHUB_API_URL = "https://api.github.com/repos/Madara273/Sakura.MTX-OP9-Pro/releases";
 
     private static final long[] TEST_VIB_PATTERN = { 0, 5 };
     private static final String DEFAULT_VIB_LEVEL = "3";
@@ -65,12 +82,15 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
     private CustomSeekBarPreference mVibratorStrengthPreference;
     private Vibrator mVibrator;
 
+    private ListPreference mSakuraList;
+    private List<String> mDownloadUrls = new ArrayList<>();
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.main, rootKey);
 
         mVibrator = getContext().getSystemService(Vibrator.class);
-        
+
         mGameModeSwitch = bindSwitchPref(KEY_GAME_SWITCH, FILE_GAME);
         mEdgeTouchSwitch = bindSwitchPref(KEY_EDGE_TOUCH, FILE_EDGE);
         mUSB2FastChargeModeSwitch = bindSwitchPref(KEY_USB2_SWITCH, FILE_FAST_CHARGE);
@@ -84,7 +104,11 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             mVibratorStrengthPreference.setEnabled(false);
         }
 
-        
+        mSakuraList = (ListPreference) findPreference(KEY_SAKURA_LIST);
+        if (mSakuraList != null) {
+            mSakuraList.setOnPreferenceChangeListener(this);
+            new FetchSakuraReleasesTask().execute();
+        }
     }
 
     private SwitchPreferenceCompat bindSwitchPref(String key, String sysfsPath) {
@@ -114,14 +138,14 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
 
     private void enforceVibPowersaveCap() {
         if (mVibratorStrengthPreference == null || !mVibratorStrengthPreference.isEnabled()) return;
-        
+
         boolean isPowersave = SystemProperties.getInt("persist.sys.perf_mode_saved", 1) == 0;
-        int currentMax = isPowersave ? 2 : 3; 
+        int currentMax = isPowersave ? 2 : 3;
         mVibratorStrengthPreference.setMaxValue(currentMax);
-        
+
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         int currentVal = sharedPrefs.getInt(KEY_VIBSTRENGTH, 3);
-        
+
         if (isPowersave && currentVal > 2) {
             mVibratorStrengthPreference.setValue(2);
             sharedPrefs.edit().putInt(KEY_VIBSTRENGTH, 2).apply();
@@ -129,17 +153,25 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
         }
     }
 
-    
-
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         String key = preference.getKey();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
 
+        if (preference == mSakuraList) {
+            int index = mSakuraList.findIndexOfValue((String) newValue);
+            if (index >= 0 && index < mDownloadUrls.size()) {
+                String downloadUrl = mDownloadUrls.get(index);
+                String versionName = mSakuraList.getEntries()[index].toString();
+                downloadKernel(versionName, downloadUrl);
+            }
+            return true;
+        }
+
         if (preference == mGameModeSwitch) return applySwitch(editor, KEY_GAME_SWITCH, FILE_GAME, (Boolean) newValue);
         if (preference == mEdgeTouchSwitch) return applySwitch(editor, KEY_EDGE_TOUCH, FILE_EDGE, (Boolean) newValue);
         if (preference == mUSB2FastChargeModeSwitch) return applySwitch(editor, KEY_USB2_SWITCH, FILE_FAST_CHARGE, (Boolean) newValue);
-        
+
         if (preference == mVibratorStrengthPreference) {
             int value = Integer.parseInt(newValue.toString());
             if (SystemProperties.getInt("persist.sys.perf_mode_saved", 1) == 0 && value > 2) {
@@ -152,14 +184,12 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             return true;
         }
 
-        
-
         String node = sBooleanNodePreferenceMap.get(key);
         if (!TextUtils.isEmpty(node) && FileUtils.isFileWritable(node)) {
             FileUtils.writeLine(node, (Boolean) newValue ? "1" : "0");
             return true;
         }
-        
+
         node = sStringNodePreferenceMap.get(key);
         if (!TextUtils.isEmpty(node) && FileUtils.isFileWritable(node)) {
             FileUtils.writeLine(node, (String) newValue);
@@ -175,13 +205,11 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
         return true;
     }
 
-    
-
     private void enforceTouchPanelPolicy() {
         if (mGameModeSwitch == null || mEdgeTouchSwitch == null) return;
-        
+
         int profile = SystemProperties.getInt("sys.perf_mode_active", PowerProfileUtil.MODE_BALANCE);
-        
+
         if (profile == PowerProfileUtil.MODE_PERFORMANCE) {
             mGameModeSwitch.setChecked(true);
             mEdgeTouchSwitch.setChecked(true);
@@ -201,7 +229,7 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
     @Override
     public void setPreferencesFromResource(int preferencesResId, String rootKey) {
         super.setPreferencesFromResource(preferencesResId, rootKey);
-        
+
         for (String pref : sBooleanNodePreferenceMap.keySet()) {
             SwitchPreferenceCompat b = (SwitchPreferenceCompat) findPreference(pref);
             if (b == null) continue;
@@ -213,7 +241,7 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
                 removePref(b);
             }
         }
-        
+
         for (String pref : sStringNodePreferenceMap.keySet()) {
             ListPreference l = (ListPreference) findPreference(pref);
             if (l == null) continue;
@@ -235,10 +263,6 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
         }
     }
 
-    
-
-    
-
     public static void restoreFastChargeSetting(Context context) {
         if (Utils.fileWritable(FILE_FAST_CHARGE)) {
             boolean value = PreferenceManager.getDefaultSharedPreferences(context)
@@ -252,6 +276,94 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             int value = PreferenceManager.getDefaultSharedPreferences(context)
                     .getInt(KEY_VIBSTRENGTH, Integer.parseInt(Utils.getFileValue(FILE_LEVEL, DEFAULT_VIB_LEVEL)));
             Utils.writeValue(FILE_LEVEL, String.valueOf(value));
+        }
+    }
+
+    private class FetchSakuraReleasesTask extends AsyncTask<Void, Void, Boolean> {
+        private List<String> versions = new ArrayList<>();
+        private List<String> urls = new ArrayList<>();
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                URL url = new URL(GITHUB_API_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", "Sakura-OS-Agent");
+                conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
+                conn.connect();
+
+                int responseCode = conn.getResponseCode();
+                Log.d(TAG, "GitHub API Response Code: " + responseCode);
+
+                if (responseCode == 200) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    reader.close();
+
+                    JSONArray releases = new JSONArray(sb.toString());
+                    for (int i = 0; i < releases.length(); i++) {
+                        JSONObject release = releases.getJSONObject(i);
+                        String tagName = release.getString("tag_name");
+
+                        JSONArray assets = release.getJSONArray("assets");
+                        if (assets.length() > 0) {
+                            JSONObject asset = assets.getJSONObject(0);
+                            String downloadUrl = asset.getString("browser_download_url");
+
+                            versions.add(tagName);
+                            urls.add(downloadUrl);
+                        }
+                    }
+                    return true;
+                } else {
+                    Log.e(TAG, "Server returned HTTP error status: " + responseCode);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed parsing updates structure", e);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success && !versions.isEmpty() && mSakuraList != null) {
+                mDownloadUrls = urls;
+
+                CharSequence[] entries = versions.toArray(new CharSequence[0]);
+                CharSequence[] entryValues = new CharSequence[versions.size()];
+                for (int i = 0; i < versions.size(); i++) {
+                    entryValues[i] = String.valueOf(i);
+                }
+
+                mSakuraList.setEntries(entries);
+                mSakuraList.setEntryValues(entryValues);
+                mSakuraList.setSummary("Found releases: " + versions.size());
+            } else {
+                if (mSakuraList != null) {
+                    mSakuraList.setSummary("Failed to fetch available update manifests");
+                }
+            }
+        }
+    }
+
+    private void downloadKernel(String versionName, String url) {
+        Toast.makeText(getContext(), "Downloading Sakura Kernel " + versionName + "...", Toast.LENGTH_SHORT).show();
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setTitle("Sakura Kernel " + versionName);
+        request.setDescription("Downloading flashable AnyKernel3 deployment archive");
+
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Sakura-" + versionName + ".zip");
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        DownloadManager manager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        if (manager != null) {
+            manager.enqueue(request);
         }
     }
 }
