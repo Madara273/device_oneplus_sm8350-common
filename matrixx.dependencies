@@ -23,5 +23,9 @@
   { 
     "repository": "vendor_sony_dolby",
     "target_path": "vendor/sony/dolby"
+  },
+  {
+    "repository": "packages_apps_BypassCharge",
+    "target_path": "packages/apps/BypassCharge"
   }
 ]
