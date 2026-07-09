@@ -1,8 +1,7 @@
 [
   {
     "repository": "hardware_oplus",
-    "target_path": "hardware/oplus",
-    "revision": "16.2-op9"
+    "target_path": "hardware/oplus"
   },
   {
     "repository": "vendor_oneplus_sm8350-common",
@@ -17,10 +16,11 @@
     "target_path": "hardware/pixelworks/interfaces"
   },
   {
-    "repository": "kernel_oneplus_sm8350",
-    "target_path": "kernel/oneplus/sm8350"
+    "repository": "Sakura.MTX-OP9-Pro",
+    "target_path": "kernel/oneplus/sm8350",
+    "revision": "Sakura.MTX-23.2"
   },
-  { 
+  {
     "repository": "vendor_sony_dolby",
     "target_path": "vendor/sony/dolby"
   },
