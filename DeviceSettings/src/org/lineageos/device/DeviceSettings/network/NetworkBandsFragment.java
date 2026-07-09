@@ -265,27 +265,28 @@ public class NetworkBandsFragment extends Fragment {
     }
 
     private TelephonyManager getTelephonyManager() {
+        if (mCurrentSubId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID) {
+            return mTelephonyManager;
+        }
         return mTelephonyManager.createForSubscriptionId(mCurrentSubId);
     }
 
     private void toast(String msg) {
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
     }
 
     private void setStatus(String status) {
         if (mStatusText != null) mStatusText.setText(status);
     }
 
-    private int countChecked() {
-        int c = 0;
-        for (BandEntry e : mBandEntries) if (e.checked) c++;
-        return c;
-    }
-
-    private String intArrayToString(int[] array) {
-        StringBuilder sb = new StringBuilder();
-        for (int i : array) sb.append(i).append(" ");
-        return sb.toString().trim();
+    private static String intArrayToString(int[] arr) {
+        if (arr == null) return "null";
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < arr.length; i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(arr[i]);
+        }
+        return sb.append("]").toString();
     }
 
     /**
@@ -383,7 +384,7 @@ public class NetworkBandsFragment extends Fragment {
             if (nris == null || nris.isEmpty()) return;
 
             int activeCount = 0;
-            
+
             for (BandEntry e : mBandEntries) {
                 e.isActive = false; // Always clear active badges for a fresh scan
             }
@@ -422,7 +423,7 @@ public class NetworkBandsFragment extends Fragment {
                 if (!isAdded()) return;
                 if (mAdapter != null) mAdapter.notifyDataSetChanged();
             });
-            
+
         } catch (Exception e) {
             Log.e(TAG, "updateActiveBandsFromServiceState failed", e);
         }
@@ -595,13 +596,6 @@ public class NetworkBandsFragment extends Fragment {
         return specifiers;
     }
 
-    private TelephonyManager getTelephonyManager() {
-        if (mCurrentSubId == SubscriptionManager.DEFAULT_SUBSCRIPTION_ID) {
-            return mTelephonyManager;
-        }
-        return mTelephonyManager.createForSubscriptionId(mCurrentSubId);
-    }
-
     private int countChecked() {
         int c = 0;
         for (BandEntry e : mBandEntries) {
@@ -610,28 +604,10 @@ public class NetworkBandsFragment extends Fragment {
         return c;
     }
 
-    private void setStatus(String msg) {
-        if (mStatusText != null) mStatusText.setText(msg);
-    }
-
-    private void toast(String msg) {
-        Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
-    }
-
     private static int[] toIntArray(List<Integer> list) {
         int[] arr = new int[list.size()];
         for (int i = 0; i < list.size(); i++) arr[i] = list.get(i);
         return arr;
-    }
-
-    private static String intArrayToString(int[] arr) {
-        if (arr == null) return "null";
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < arr.length; i++) {
-            if (i > 0) sb.append(", ");
-            sb.append(arr[i]);
-        }
-        return sb.append("]").toString();
     }
 
     /* RecyclerView Adapter */
