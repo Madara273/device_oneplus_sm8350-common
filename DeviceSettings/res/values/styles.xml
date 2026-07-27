@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DeviceSettings" parent="@android:style/Theme.DeviceDefault.Settings" />
+    <style name="Theme.SubSettings" parent="@android:style/Theme.DeviceDefault.Settings" />
+    <style name="Theme.SubSettingsBase.Expressive" parent="@android:style/Theme.DeviceDefault.Settings" />
+</resources>

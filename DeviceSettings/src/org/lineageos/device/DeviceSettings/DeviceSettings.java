@@ -27,12 +27,15 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
+import androidx.preference.SeekBarPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
 import androidx.preference.Preference;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 import androidx.preference.SwitchPreferenceCompat;
-
 
 import com.android.settingslib.widget.SettingsBasePreferenceFragment;
 
@@ -67,7 +70,7 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
     private SwitchPreferenceCompat mEdgeTouchSwitch;
     private SwitchPreferenceCompat mUSB2FastChargeModeSwitch;
 
-    private CustomSeekBarPreference mVibratorStrengthPreference;
+    private SeekBarPreference mVibratorStrengthPreference;
 
     private Vibrator mVibrator;
 
@@ -108,7 +111,7 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             mUSB2FastChargeModeSwitch.setEnabled(false);
         }
 
-        mVibratorStrengthPreference =  (CustomSeekBarPreference) findPreference(KEY_VIBSTRENGTH);
+       	mVibratorStrengthPreference = (SeekBarPreference) findPreference(KEY_VIBSTRENGTH);
         if (Utils.fileWritable(FILE_LEVEL)) {
             mVibratorStrengthPreference.setValue(sharedPrefs.getInt(KEY_VIBSTRENGTH,
                 Integer.parseInt(Utils.getFileValue(FILE_LEVEL, DEFAULT))));
@@ -124,19 +127,25 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
             boolean enabled = (Boolean) newValue;
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             sharedPrefs.edit().putBoolean(KEY_GAME_SWITCH, enabled).commit();
-    	    Utils.writeValue(FILE_GAME, enabled ? "1" : "0");
+            Utils.writeValue(FILE_GAME, enabled ? "1" : "0");
+            if (enabled) {
+                showCustomToast(getContext(), getString(R.string.game_mode_warning), 2000);
+            }
             return true;
         } else if (preference == mEdgeTouchSwitch) {
             boolean enabled = (Boolean) newValue;
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             sharedPrefs.edit().putBoolean(KEY_EDGE_TOUCH, enabled).commit();
-    	    Utils.writeValue(FILE_EDGE, enabled ? "1" : "0");
+            Utils.writeValue(FILE_EDGE, enabled ? "1" : "0");
+            if (enabled) {
+                showCustomToast(getContext(), getString(R.string.edge_touch_warning), 2000);
+            }
             return true;
         } else if (preference == mUSB2FastChargeModeSwitch) {
             boolean enabled = (Boolean) newValue;
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             sharedPrefs.edit().putBoolean(KEY_USB2_SWITCH, enabled).commit();
-    	    Utils.writeValue(FILE_FAST_CHARGE, enabled ? "1" : "0");
+            Utils.writeValue(FILE_FAST_CHARGE, enabled ? "1" : "0");
             return true;
         } else if (preference == mVibratorStrengthPreference) {
             int value = Integer.parseInt(newValue.toString());
@@ -162,6 +171,18 @@ public class DeviceSettings extends SettingsBasePreferenceFragment
         }
 
         return false;
+    }
+
+    private void showCustomToast(Context context, String message, int durationMs) {
+        if (context == null) return;
+        final Toast toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+        toast.show();
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                toast.cancel();
+            }
+        }, durationMs);
     }
 
     @Override

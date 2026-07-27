@@ -15,10 +15,10 @@
      limitations under the License.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:settings="http://schemas.android.com/apk/res/org.lineageos.device.DeviceSettings"
+    xmlns:settings="http://schemas.android.com/apk/res/org.lineageos.device.DeviceSettings"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory
+    <org.lineageos.device.CenteredCategory
         android:key="touchpanel"
         android:title="@string/touchpanel_title">
 
@@ -28,27 +28,14 @@
             android:summary="@string/edge_touch_summary"
             android:title="@string/edge_touch_title" />
 
-        <Preference
-            android:key="edge_touch_info"
-            android:icon="@drawable/ic_info_outline"
-            android:summary="@string/edge_touch_warning"
-            android:persistent="false"
-            android:selectable="false" />
-
         <SwitchPreferenceCompat
             android:key="game_mode"
             android:icon="@drawable/ic_game_mode"
             android:summary="@string/game_mode_summary"
             android:title="@string/game_mode_title" />
+    </org.lineageos.device.CenteredCategory>
 
-        <Preference
-            android:icon="@drawable/ic_info_outline"
-            android:summary="@string/game_mode_warning"
-            android:persistent="false"
-            android:selectable="false" />
-    </PreferenceCategory>
-
-    <PreferenceCategory
+    <org.lineageos.device.CenteredCategory
         android:key="usb"
         android:title="@string/usb_title">
 
@@ -57,21 +44,21 @@
             android:icon="@drawable/ic_usb2_fc"
             android:summary="@string/usb2_fc_summary"
             android:title="@string/usb2_fc_title" />
-    </PreferenceCategory>
+    </org.lineageos.device.CenteredCategory>
 
-    <PreferenceCategory
+    <org.lineageos.device.CenteredCategory
         android:key="vibrator"
         android:title="@string/category_vibrator">
 
-        <org.lineageos.device.DeviceSettings.CustomSeekBarPreference
+        <SeekBarPreference
             android:key="vib_strength"
             android:icon="@drawable/ic_intensity_icon"
             android:title="@string/vib_strength_title_head"
             android:summary="@string/vib_strength_summary_head"
             android:persistent="true"
-            android:max="5"
-            android:min="0"
-            settings:units=""
-            android:defaultValue="3" />
-    </PreferenceCategory>
+            android:max="3"
+            android:min="1"
+            android:defaultValue="2" />
+    </org.lineageos.device.CenteredCategory>
+
 </PreferenceScreen>
