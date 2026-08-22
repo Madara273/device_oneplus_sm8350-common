@@ -21,6 +21,11 @@
     "target_path": "vendor/sony/dolby"
   },
   {
+    "repository": "PhotonCamera-Personal",
+    "target_path": "vendor/photon/camera",
+    "revision": "PhotonCamera"
+  },
+  {
     "repository": "packages_apps_BypassCharge",
     "target_path": "packages/apps/BypassCharge"
   }
